@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente de Conteúdo com IA (PHP & OpenAI)</title>
+    <meta name="author" content="Onivaldo Miquelino">          
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style> 
+        body { font-family: ui-sans-serif, system-ui; } 
+        #aiResponseText { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 flex justify-center">
+
+    <div class="w-full max-w-4xl bg-white p-8 rounded-xl shadow-2xl">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-8">Assistente de Conteúdo IA</h1>
+        
+        <div class="mb-8 p-6 border-2 border-indigo-100 rounded-lg bg-indigo-50">
+            <h2 class="text-xl font-semibold text-indigo-800 mb-4">Sua Pergunta/Instrução</h2>
+            <form id="aiForm" class="space-y-4">
+                <div>
+                    <label for="promptInput" class="block text-sm font-medium text-gray-700">Prompt:</label>
+                    <textarea id="promptInput" rows="5" required
+                              class="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:border-indigo-500"
+                              placeholder="Ex: Escreva um pequeno parágrafo sobre a importância da programação para o futuro da educação."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="modelSelect" class="block text-sm font-medium text-gray-700">Modelo de IA:</label>
+                        <select id="modelSelect" class="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:border-indigo-500">
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Padrão)</option>
+                            </select>
+                    </div>
+                    <div>
+                        <label for="temperatureInput" class="block text-sm font-medium text-gray-700">Criatividade (0.0 a 2.0):</label>
+                        <input type="number" id="temperatureInput" min="0" max="2" step="0.1" value="0.7"
+                               class="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <button type="submit" id="generateBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition">
+                    Gerar Conteúdo com IA
+                </button>
+            </form>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">Resposta da IA</h2>
+        <div id="aiResponseContainer" class="p-6 border border-gray-200 rounded-lg bg-gray-50 min-h-[150px] flex items-center justify-center">
+            <p id="aiResponseText" class="text-gray-700 italic">O conteúdo gerado pela IA aparecerá aqui.</p>
+            <div id="loadingSpinner" class="hidden animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+        
+        <div id="statusMessage" class="hidden p-4 mt-6 rounded-md text-sm"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8001/src/api.php'; 
+
+        const aiForm = document.getElementById('aiForm');
+        const promptInput = document.getElementById('promptInput');
+        const modelSelect = document.getElementById('modelSelect');
+        const temperatureInput = document.getElementById('temperatureInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const aiResponseText = document.getElementById('aiResponseText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // --- Funções de Utilitário (Status) ---
+        function updateStatus(message, type = 'info') {
+             statusMessage.textContent = message;
+             statusMessage.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800');
+            
+             if (type === 'error') {
+                 statusMessage.classList.add('bg-red-100', 'text-red-800');
+             } else if (type === 'success') {
+                 statusMessage.classList.add('bg-green-100', 'text-green-800');
+             } else { // Loading/Info
+                  statusMessage.classList.add('bg-yellow-100', 'text-yellow-800');
+             }
+             statusMessage.classList.remove('hidden');
+        }
+
+        function clearStatus() {
+            statusMessage.classList.add('hidden');
+        }
+
+        // --- Lógica de Geração de Conteúdo IA ---
+
+        aiForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            clearStatus();
+            aiResponseText.textContent = ''; // Limpa resposta anterior
+            aiResponseText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden'); // Mostra spinner
+            generateBtn.disabled = true;
+
+            const prompt = promptInput.value.trim();
+            const model = modelSelect.value;
+            const temperature = parseFloat(temperatureInput.value);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt, model, temperature })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    aiResponseText.textContent = result.data.generated_text;
+                    updateStatus('✅ Conteúdo gerado com sucesso!', 'success');
+                } else {
+                    throw new Error(result.error || `Erro HTTP ${response.status}.`);
+                }
+            } catch (error) {
+                aiResponseText.textContent = `❌ Erro ao gerar conteúdo: ${error.message}`;
+                updateStatus(`❌ Erro: ${error.message}`, 'error');
+            } finally {
+                loadingSpinner.classList.add('hidden'); // Oculta spinner
+                aiResponseText.classList.remove('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+        
+    </script>
+</body>
+</html>
+   
