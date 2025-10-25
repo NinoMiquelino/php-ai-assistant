@@ -1,4 +1,0 @@
-KeyOnivaldoOpenAI
-
-// Chave secreta OpenAI
-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
