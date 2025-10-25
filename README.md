@@ -52,10 +52,10 @@ php-ai-assistant/
 ├── index.html
 ├── README.md
 ├── .gitignore
+├── .env
 └── 📁 src/
          ├── OpenAIClient.php
-         ├── api.php
-         └── .env 
+         └── api.php
 ```
 ---
 
