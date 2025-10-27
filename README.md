@@ -15,7 +15,7 @@
 ![Made with PHP](https://img.shields.io/badge/PHP-777BB4?logo=php&logoColor=white)
 ![Frontend JavaScript](https://img.shields.io/badge/Frontend-JavaScript-F7DF1E?logo=javascript&logoColor=black)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwindcss&logoColor=white)
-![OpenAI API](https://img.shields.io/badge/OpenAI-GPT--3.5-412991?logo=openai)(https://openai.com/)
+![OpenAI API](https://img.shields.io/badge/OpenAI-GPT--3.5-412991?logo=openai)
 ![License MIT](https://img.shields.io/badge/License-MIT-green)
 ![Status Stable](https://img.shields.io/badge/Status-Stable-success)
 ![Version 1.0.0](https://img.shields.io/badge/Version-1.0.0-blue)
